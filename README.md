@@ -1,7 +1,7 @@
-<img src="resources/img/header.png" width="800">
+<img src="resources/img/header.png" width="900">
 
 # pyparams
-Library for python file parametrization.
+Library for python files parametrization.
 
 
 # Simple python example:

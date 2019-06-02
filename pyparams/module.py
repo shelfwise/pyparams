@@ -52,11 +52,12 @@ class PyParamModule(pyparam.NamedBasePyParam):
 
     def module_source(self, base_path: Path) -> str:
         for folder in base_path.rglob("*"):
-            path = folder / Path(self.module_path)
+            path = folder.parent / Path(self.module_path)
             if path.exists():
                 return parser.read_source_code(path)
 
-        raise FileNotFoundError(f"Cannot find module: {self.module_path}")
+        raise FileNotFoundError(
+            f"Cannot find module: {self.module_path}, search path: {base_path}")
 
     def find_module_source(self, search_folders: List[Path]) -> str:
         sources = []
