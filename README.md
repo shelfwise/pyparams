@@ -4,7 +4,6 @@ and compilation.
 
 <img src="resources/img/header.png" width="900">
 
-[TOC]
 
 # Introduction
 
@@ -309,9 +308,10 @@ to use different optimizer e.g. `AdamW`.
 
 ```python
 # the content of main_adamw.py
-
 from pyparams import *
+# derive the content of main.py file
 DeriveModule("main")
+# replace modules.adam with modules.adamw
 optimizer_module: Module = ReplaceModule("modules.adamw", "optimizer")
 ```
 
