@@ -1,0 +1,7 @@
+url:
+    address:
+        dtype: str
+        value: ''
+    port:
+        dtype: int
+        value: 10000
