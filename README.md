@@ -1,7 +1,104 @@
+# pyparams
+Library for converting any python file parameters into YAML config and
+and compilation.
+
 <img src="resources/img/header.png" width="900">
 
-# pyparams
-Library for python files parametrization.
+[TOC]
+
+# Introduction
+
+PyParams is a python package which uses python
+[AST](https://docs.python.org/3/library/ast.html)
+library to parametrize python files, parse them and compile.
+The idea behind PyParams can be illustrated
+with following example. Lets say we have following module `model.py`:
+
+```python
+from pyparams import *
+@dataclass
+class SomeModel:
+    num_layers: int = 10
+    activation: str = "relu"
+
+    def predict(self, inputs: tf.Tensor) -> tf.Tensor:
+        # some logic
+        another_param: int = 1
+        return outputs
+
+```
+We would like to use this module to solve some problem. Lets say there is a
+`trainer.py` script which loads this module and
+sets parameters of the model and train it.
+
+**First question: how to parametrize this model?**
+
+There are few options:
+
+* we can create argparser for a trainer.py and provide model parameters via
+command line e.g:`./trainer.py --num_layers=3`. What if we want to test
+another model which will have different set of parameters ?
+Should we create another parser ?
+
+* we can create a config.yml which will define a model parameters and provide
+this config to trainer.py. However, we will need to create a parser for each model.
+
+* what about other parts like optimizers, augmentations?
+They will be parametrized too.  This approach is done in tensorflow detection API,
+which uses protobuf to define config file, however writing
+parsers/builders will take a lot of time. This is an simple job but tedious...
+
+
+## PyParams - basics
+
+**PyParams are to solve many of these problems!!!** - however they do it in
+a bruteforce manner and probably not elegant. Lets see how we can parametrize
+previous example. One must to decorate all parameters with `PyParam` alias.
+
+```python
+from wise_models_zoo import *
+@dataclass
+class SomeModel:
+    num_layers: int = PyParam(10, desc="number of layers", scope="general")
+    activation: str = PyParam("relu", desc="activation type", scope="general")
+
+    def predict(self, inputs: tf.Tensor) -> tf.Tensor:
+        # some logic
+        another_param: int = PyParam(1, desc="another param", scope="predict")
+        return outputs
+
+```
+
+Note, `PyParam` does actually nothing in the code, if you look at the definition
+of `PyParam` object it is just a identity function:
+
+```python
+def PyParam(
+    value: Any,
+    dtype: Optional[type] = None,
+    scope: Optional[str] = "",
+    desc: Optional[str] = "",
+) -> Any:
+    return value
+```
+So, file decorated with `PyParam` is still a valid python file, which can
+be used as regular python code! In PyParams, decorated python file
+can be considered as a code template which will serve as a read-only
+version of some code. This template can be used to create config
+file with all pyparams defined in this
+template and compiled version of this file, in which all pyparams are
+replaced with values from the generated config.
+
+For more examples see codes in: `resources/code_samples/*` with the most
+advanced example in `resources/code_samples/template9.py`.
+
+**Warning:** PyParam fields must be defined statically i.e. one cannot
+define PyParam fields with another variable. For example this is illegal:
+
+```python
+model_scope: str = "scope"  # wrong, cannot be used in PyParams !!!!
+num_layers: int = PyParam(10, scope=model_scope)
+```
 
 
 # Simple python example:
@@ -48,6 +145,8 @@ client = SomeClient(address, port)
 client.do_something()
 ...
 ```
+
+
 
 
 # Importing parametrized modules
@@ -216,6 +315,13 @@ DeriveModule("main")
 optimizer_module: Module = ReplaceModule("modules.adamw", "optimizer")
 ```
 
+Parse file for parameters:
+
+```bash
+pyparams main_adamw.py -I .
+```
+
+
 Created `config.yml` will contain `adamw` section instead of `adam`:
 
 ```yaml
@@ -240,7 +346,7 @@ optimizer:
 ...
 ```
 
-Compilation is done in exact way:
+Compilation is done in same way:
 
 ```bash
 pyparams main_adamw.py -I . -o compiled_main_adamw.py
