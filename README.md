@@ -363,7 +363,7 @@ optimizer:
 ...
 ```
 
-Compilation is done in same way:
+Compilation is done in the same way:
 
 ```bash
 pyparams main_adamw.py -I . -o compiled_main_adamw.py
