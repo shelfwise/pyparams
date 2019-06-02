@@ -97,7 +97,8 @@ if __name__ == "__main__":
         "-I",
         "--include",
         action="append",
-        help="Modules include search folders",
+        help="Modules include search folder e.g. "
+             "-I path/modules -I another/path",
         default=[],
         required=False,
     )
@@ -108,7 +109,7 @@ if __name__ == "__main__":
         type=str,
         default=None,
         required=False,
-        help="Compile model output file path",
+        help="Compile model output file path.",
     )
 
     args = parser.parse_args()

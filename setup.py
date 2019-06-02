@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1'
+VERSION = '0.1.1'
 
 setup(
-    name='pyparams',
+    name='python-params',
     version=VERSION,
     description='Python files parametrization library',
     author='shelfwise.ai',
