@@ -17,8 +17,6 @@ setup(
         "pyyaml==5.1",
     ],
     scripts=[
-    ],
-    classifiers=[
         "scripts/pyparams"
     ],
     include_package_data=True
