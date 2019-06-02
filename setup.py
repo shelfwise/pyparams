@@ -15,6 +15,7 @@ setup(
         "astor==0.6.2",
         "natsort==5.3.3",
         "pyyaml==5.1",
+        "dataclasses==0.6"
     ],
     scripts=[
         "scripts/pyparams"
