@@ -1,0 +1,29 @@
+feature_extractor:
+    activation_fn_in_separable_conv:
+        dtype: bool
+        value: false
+    base_num_filters:
+        dtype: int
+        value: 4
+    entry_flow_blocks:
+        desc: Number of units in each bock in the entry flow.
+        dtype: tuple
+        value: !!python/tuple
+        - 1
+        - 1
+        - 1
+    include_root:
+        dtype: bool
+        value: false
+    middle_flow_blocks:
+        desc: Number of units in the middle flow.
+        dtype: tuple
+        value: !!python/tuple
+        - 1
+    regularize_depthwise:
+        dtype: bool
+        value: false
+version:
+    desc: model version
+    dtype: str
+    value: '1.0'

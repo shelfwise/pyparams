@@ -1,0 +1,116 @@
+#!/usr/bin/env python
+
+from pathlib import Path
+from typing import List, Optional
+
+import pyparams.modules_parser as modules_parser
+import pyparams.pyparam_parser as param_parser
+from pyparams.utils import get_default_logger, ArgumentParserWithDefaults
+
+_logger = get_default_logger()
+
+
+def main(
+    filepath: Path,
+    config: Path,
+    include: List[str],
+    output: Optional[str],
+    overwrite: bool,
+) -> None:
+
+    if not filepath.exists():
+        raise FileNotFoundError(
+            f"Cannot load pyparams, path does not exists: {filepath}"
+        )
+
+    include = [Path(i) for i in include]
+    for path in include:
+        if not path.exists():
+            raise FileNotFoundError(f"Include path `{path}` does not exist.")
+
+    source_code = param_parser.read_source_code(filepath)
+    source_code = modules_parser.include_modules(source_code, search_folders=include)
+
+    if output is None:
+        _logger.info(f"Parsing file: {filepath}")
+
+        if config.exists() and not overwrite:
+            raise FileExistsError(
+                "Config file already exists use --overwrite flag to "
+                f"force overwrite old file: {config}"
+            )
+
+        param_parser.source_to_yaml_config(source_code, config)
+
+    else:
+        _logger.info(f"Compiling file: {filepath}")
+        output = Path(output)
+        if output.exists() and not overwrite:
+            raise FileExistsError(
+                "Compiled model file already exists use --overwrite flag to "
+                f"force overwrite old file: {output}"
+            )
+
+        if not config.exists():
+            raise FileNotFoundError(
+                f"Config file `{config}` does not exist, cannot compile file."
+            )
+
+        config = param_parser.read_yaml_file(config)
+        new_source_code = param_parser.compile_source_code(
+            source_code=source_code, config=config
+        )
+        with open(output, "w") as file:
+            file.write(new_source_code)
+
+
+if __name__ == "__main__":
+
+    parser = ArgumentParserWithDefaults(
+        description="PyParams config parser and compiler"
+    )
+
+    parser.add_argument(
+        "filepath",
+        type=lambda path: Path(path),
+        help="A path to a python file e.g. models/some_python.py",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=lambda path: Path(path),
+        required=False,
+        default="config.yml",
+        help="A path to a config file e.g. path/to/model_config.yml",
+    )
+
+    parser.add_argument(
+        "--overwrite",
+        default=False,
+        action="store_true",
+        help="Forces overwrite file (compile python file od YAML) when another "
+        "one with the same name already exists.",
+    )
+
+    parser.add_argument(
+        "-I",
+        "--include",
+        action="append",
+        help="Modules include search folders",
+        default=[],
+        required=False,
+    )
+
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        required=False,
+        help="Compile model output file path",
+    )
+
+    args = parser.parse_args()
+    args = vars(args)
+    main(**args)
