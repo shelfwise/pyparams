@@ -1,10 +1,29 @@
 # pyparams
-Library for converting any python file parameters into YAML config and
-and compilation.
+Library for writing parametrized python files and converting them into YAML 
+configs. 
 
 <img src="resources/img/header.png" width="900">
 
 [![Build Status](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)
+
+# Installation - pyparams can be installed via pip
+
+```bash
+pip install python-params
+```
+
+# Usage:
+```bash
+pyparams --help
+
+# config parsing
+pyparams path/to/python_file.py
+pyparams path/to/python_file.py -c config.yml -I path/to/modules -I path/to/models
+
+# config compilation  
+pyparams path/to/python_file.py -o compiled_file.py
+pyparams path/to/python_file.py -c config.yml -I path/to/modules -I path/to/models  -o compiled_file.py
+```
 
 # Introduction
 
