@@ -4,6 +4,7 @@ and compilation.
 
 <img src="resources/img/header.png" width="900">
 
+[![Build Status](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)
 
 # Introduction
 
