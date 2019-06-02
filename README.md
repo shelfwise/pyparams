@@ -6,9 +6,9 @@ Library for python file parametrization.
 
 # Simple python example:
 
-* Define parametrized file by annotating selected parameters with `PyParam`
+1. Define parametrized file by annotating selected parameters with `PyParam`
 
-* A content of `client.py` file
+2. A content of `client.py` file
 ```python
 from pyparams import *
 
@@ -20,7 +20,8 @@ client = SomeClient(address, port)
 client.do_something()
 ```
 
-* Parse file to create `config.yml`:
+3. Parse file to create `config.yml`:
+
 ```bash
 pyparams path/to/client.py
 cat config.yml
@@ -33,11 +34,11 @@ url:
         value: 10000
 ```
 
-* Set config and create compiled version of the `client.py` code.
+4. Set config and create compiled version of the `client.py` code.
+
 ```bash
 pyparams path/to/client.py -o compiled_client.py
-```
-this will create `compiled_client.py` file:
+``` 
 ```python
 from pyparams import Module
 from pyparams import *
