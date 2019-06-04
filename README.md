@@ -1,10 +1,29 @@
 # pyparams
-Library for converting any python file parameters into YAML config and
-and compilation.
+Library for writing parametrized python files and converting them into YAML 
+configs. 
 
 <img src="resources/img/header.png" width="900">
 
 [![Build Status](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)](https://travis-ci.org/fornaxai/pyparams.svg?branch=master)
+
+# Installation - pyparams can be installed via pip
+
+```bash
+pip install python-params
+```
+
+# Usage:
+```bash
+pyparams --help
+
+# config parsing
+pyparams path/to/python_file.py
+pyparams path/to/python_file.py -c config.yml -I path/to/modules -I path/to/models
+
+# config compilation  
+pyparams path/to/python_file.py -o compiled_file.py
+pyparams path/to/python_file.py -c config.yml -I path/to/modules -I path/to/models  -o compiled_file.py
+```
 
 # Introduction
 
@@ -46,14 +65,14 @@ this config to trainer.py. However, we will need to create a parser for each mod
 * what about other parts like optimizers, augmentations?
 They will be parametrized too.  This approach is done in tensorflow detection API,
 which uses protobuf to define config file, however writing
-parsers/builders will take a lot of time. This is an simple job but tedious...
+parsers/builders will take a lot of time. This is simple job but tedious ...
 
 
 ## PyParams - basics
 
 **PyParams are to solve many of these problems!!!** - however they do it in
-a bruteforce manner and probably not elegant. Lets see how we can parametrize
-previous example. One must to decorate all parameters with `PyParam` alias.
+a brute-force and probably not elegant way. Lets see how we can parametrize
+previous example. One must decorate parameters with `PyParam`:
 
 ```python
 from wise_models_zoo import *
@@ -70,7 +89,7 @@ class SomeModel:
 ```
 
 Note, `PyParam` does actually nothing in the code, if you look at the definition
-of `PyParam` object it is just a identity function:
+of the `PyParam` object it's just an identity function:
 
 ```python
 def PyParam(
@@ -81,12 +100,12 @@ def PyParam(
 ) -> Any:
     return value
 ```
+
 So, file decorated with `PyParam` is still a valid python file, which can
 be used as regular python code! In PyParams, decorated python file
 can be considered as a code template which will serve as a read-only
 version of some code. This template can be used to create config
-file with all pyparams defined in this
-template and compiled version of this file, in which all pyparams are
+file with all pyparams defined in it and compiled version of this file, in which all pyparams are
 replaced with values from the generated config.
 
 For more examples see codes in: `resources/code_samples/*` with the most
@@ -99,7 +118,6 @@ define PyParam fields with another variable. For example this is illegal:
 model_scope: str = "scope"  # wrong, cannot be used in PyParams !!!!
 num_layers: int = PyParam(10, scope=model_scope)
 ```
-
 
 # Simple python example:
 
@@ -131,7 +149,7 @@ url:
         value: 10000
 ```
 
-4. Set config and create compiled version of the `client.py` code.
+4. Set config values and create compiled version of the `client.py` code.
 
 ```bash
 pyparams path/to/client.py -o compiled_client.py
@@ -147,22 +165,20 @@ client.do_something()
 ```
 
 
-
-
 # Importing parametrized modules
 
-Modules are suppose to provide reusable parts of the codes.
+Modules are suppose to provide reusable parts of the code.
 In order to inform PyParams that selected module should be
 interpreted as parametrizable module one most provide special
 declaration ("#@") just above `import` statement. In the examples
 below we assume that one have prepared a library of different modules
 which are located in `modules` folder. The location of the modules
 folder may be provided with `-I, --include` parameter of the
-pyparam command - see example below. Possible import declarations are:
+`pyparam` command - see example below. Possible import declarations are:
 
 ### #@import_pyparams_as_module(scope)
 
-Named import used with `import as` keyword:
+Named import used together with python `import as` keyword:
 ```python
 # @import_pyparams_as_module("optimizer")
 import modules.optimizers.adam as optimizer_module
@@ -188,7 +204,7 @@ can have different parameters for left and right branches.
 
 ### #@import_pyparams_as_source()
 
-Brute-force module source include, which
+Brute-force module source code include, which
 works like `#include` declaration in C/C++ languages. For example:
 
 ```python
@@ -209,15 +225,15 @@ import modules.optimizers.adam as optimizer_module
 import modules.augmentation.default_augmentation as augmentation_module
 ```
 
-All parameters included in these imports will appear in final `config.yml` file.
+All parameters included in these imports will appear in the final `config.yml` file.
 
 
-## Importing parametrized modules example:
+## Importing parametrized modules example
 
 Lets say we have library of python files which
 are parametrized with PyParams. The code for this example
 can be found in `resources/examples/modules`. For example our
-main.py may look like:
+`main.py` may look like this:
 
 ```python
 from pyparams import *
@@ -243,7 +259,6 @@ See `resources/examples/modules/modules` for the code from this example.
 
 ```bash
 pyparams main.py -I .
-
 PyParams: Found include module decorator: import modules.model_v1 as model_module
 PyParams: Found include module decorator: import modules.adam as optimizer_module
 PyParams: importing `modules.model_v1` as `model_module`
@@ -279,7 +294,7 @@ trainer:
             dtype: str
             value: '{{REQUIRED}}'
 ```
-Compilation, please check the content of `compiled_main.py` to
+Compilation step. Please check the content of `compiled_main.py` to
 see how PyParams deals with importing modules.
 
 ```bash
@@ -289,8 +304,8 @@ pyparams main.py -I . -o compiled_main.py
 
 ### Deriving modules
 
-Sometimes we want to try different optimizers, activation function,
-resnet blocks etc. Normally, we can parametrize our model with some
+Sometimes we want to try different optimizer, activation function,
+resnet block etc. Normally, we would parametrize our model with some
 `if else` structure e.g.
 
 ```python
@@ -310,13 +325,14 @@ to use different optimizer e.g. `AdamW`.
 ```python
 # the content of main_adamw.py
 from pyparams import *
+
 # derive the content of main.py file
 DeriveModule("main")
 # replace modules.adam with modules.adamw
 optimizer_module: Module = ReplaceModule("modules.adamw", "optimizer")
 ```
 
-Parse file for parameters:
+Parse file for all parameters:
 
 ```bash
 pyparams main_adamw.py -I .
@@ -347,9 +363,8 @@ optimizer:
 ...
 ```
 
-Compilation is done in same way:
+Compilation is done in the same way:
 
 ```bash
 pyparams main_adamw.py -I . -o compiled_main_adamw.py
 ```
-
