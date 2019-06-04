@@ -97,8 +97,9 @@ def value_to_ast_node(value: Any, dtype: type) -> ast.AST:
     Raises:
         ValueError: when the dtype of is not supported
     """
-
-    if dtype in [int, float]:
+    if value is None:
+        return ast.Module(body=str(value))
+    elif dtype in [int, float]:
         return ast.Num(value)
     elif dtype == bool:
         return ast.NameConstant(value)
@@ -269,7 +270,9 @@ class PyParam(BasePyParam):
                 if dtype is None:
                     raise ValueError(f"Unsupported PyParam dtype: {self.dtype}")
 
-                value = dtype(self.value)
+                value = self.value
+                if self.value is not None:
+                    value = dtype(self.value)
                 return self.replace(dtype=dtype, value=value)
         except Exception as e:
             raise ValueError(f"Error while compiling pyparam: {self}: {e}")
