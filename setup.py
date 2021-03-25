@@ -14,7 +14,7 @@ setup(
         "pytest>=3.3.0",
         "astor==0.6.2",
         "natsort==5.3.3",
-        "pyyaml==5.1",
+        "pyyaml==5.4",
         "dataclasses==0.6"
     ],
     scripts=[
